@@ -1,0 +1,2 @@
+munki-a-1.pnp.melodis.com
+alexander-a-1.sca.melodis.com
