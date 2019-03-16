@@ -2,12 +2,13 @@ import paramiko
 import sys
 
 ssh = paramiko.SSHClient()
-ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+# ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.load_system_host_keys(filename=None)
 
-ssh.connect(hostname = 'munki-a-1.pnp.melodis.com',
-        username = 'root',
-        gss_auth = True,
-        gss_kex = True)
+ssh.connect(hostname = '167.99.175.39',
+        username = 'root')
+        # gss_auth = True,
+        # gss_kex = True)
 
 
 def get_free_memory(ssh_obj):
@@ -43,7 +44,7 @@ ssh.close()
 
 '''
 LEFT TO DO: 
-1. SPIN UP DIGITAL OCEAN SERVER WITH SSH KEY FOR TESTING
+1. SPIN UP DIGITAL OCEAN SERVER WITH SSH KEY FOR TESTING (CHECK)
 2. TURN THIS INTO A CLASS
 3. FIGURE OUT HOW TO RETURN MULTIPLE THINGS FROM THESE FUNCTIONS
 '''
