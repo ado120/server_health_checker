@@ -93,7 +93,7 @@ disk space,x,usedspace, x
 5.  Classes (CHECK)
 6.  User created iterators
 7.  Importing external modules (CHECK)
-8.  Error checks using try-except (NEED TO DO)
+8.  Error checks using try-except (CHECK)
 9.  File input and output (CHECK)
 10. Regular expression
 11. Itertools 

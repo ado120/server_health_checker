@@ -1,5 +1,7 @@
 import paramiko
 import sys
+import csv
+import datetime
 
 class Server():
     def __init__(self, hostname, user, password):
@@ -11,13 +13,17 @@ class Server():
     def connect(self):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(
-            hostname = self.hostname,
-            username = self.user,
-            password = self.password
-        )
-        stdin, stdout, stderr = ssh.exec_command('ls')
-        return ssh
+        try:
+            ssh.connect(
+                hostname = self.hostname,
+                username = self.user,
+                password = self.password
+            )
+            stdin, stdout, stderr = ssh.exec_command('ls')
+            return ssh
+        except:
+            print('Unable to ssh to the server, please try again')
+            sys.exit(1)
     
     def get_free_memory(self):
         stdin, stdout, stderr = self.ssh_obj.exec_command('free -h')
@@ -56,38 +62,58 @@ class Server():
         }
         return disk_info
 
-    def get_stat(self, 'stat_code'):
-        if stat_code == 'disk_space':
-            return_dict = _disk_space
-        elif stats_code == 'logged_in_users':
-            return_dict = self.get_logged_in_users
+    # def get_stat(self, stat_code):
+    #     if stat_code == 'disk_space':
+    #         return_dict = _disk_space
+    #     elif stats_code == 'logged_in_users':
+    #         return_dict = self.get_logged_in_users
 
-        for key, value in return_dict.items():
-            print(f'{key} is : {value}')
+    #     for key, value in return_dict.items():
+    #         print(f'{key} is : {value}')
 
-    
+    def get_all_stats(self):
+        free_mem = self.get_free_memory()
+        logged_in_users = self.get_logged_in_users()
+        disk_stats = self._disk_space()
+        all_stats = {**free_mem, **logged_in_users, **disk_stats}
+        return all_stats
 
+    def write_stats_to_csv(self):
+        all_stats = self.get_all_stats()
+        with open('server_test.csv', 'w') as csv_file:
+            fieldnames = ['Date', 'hostname', 'used mem', 'free mem', 
+            'logged in users', 'disk space', 'used space']
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
+            writer.writeheader()
+            # FOR LOOP HERE FOR WRITER.WRITEROW()
+            writer.writerow({'Date': now.strftime('%Y-%m-%d %H:%M'), 
+                            'hostname': self.hostname, 
+                            'used mem': all_stats['used'],
+                            'free mem': all_stats['free'],
+                            'logged in users': all_stats['logged in users'],
+                            'disk space': all_stats['total_space'],
+                            'used space': all_stats['used_space']})
 
-    def write_mem_to_csv(self):
-        pass
-
-s = Server('167.99.175.39', 'root', 'test123')
+now = datetime.datetime.now()
+s = Server('167.99.175.41', 'root', 'test123')
 t = s.get_free_memory()
 logged_in_users = s.get_logged_in_users()
-s.get_disk_space()
-s.write_mem_to_csv()
-print(s)
-print(t)
-print(logged_in_users)
+# s._disk_space()
+# s.write_mem_to_csv()
+# print(s)
+# print(t)
+print(s.get_all_stats())
+s.write_stats_to_csv()
 '''
 date/time,hostname,total mem,x,free mem,x,used mem,x
 logged in users,x
 disk space,x,usedspace,x
 
-1. Write function get_all_stats
-2. Finish write to csv function
-3. Include try-except in the connect method()
-4. Think of CLI flow
+1. Write function get_all_stats (CHECK)
+2. Finish write to csv function (IN PROGRESS)
+3. Include try-except in the connect method() (CHECK, make it re-run the script and not exit)
+4. Think of CLI flow or use argparse?! (NEED TO DO)
+5. Query it somehow?
 '''
 

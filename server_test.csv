@@ -1,6 +1,2 @@
-total mem,991M
-used mem,80M
-free mem,552M
-shared mem,19M
-cache mem,358M
-available mem,724M
+Date,hostname,used mem,free mem,logged in users,disk space,used space
+2019-03-18 22:49,167.99.175.39,79M,525M,1,25G,1.1G
