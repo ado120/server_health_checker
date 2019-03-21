@@ -2,6 +2,8 @@ import paramiko
 import sys
 import csv
 import datetime
+import os
+import bullet
 
 class Server():
     def __init__(self, hostname, user, password):
@@ -23,6 +25,7 @@ class Server():
             return ssh
         except:
             print('Unable to ssh to the server, please try again')
+            ssh.close()
             sys.exit(1)
     
     def get_free_memory(self):
@@ -80,23 +83,34 @@ class Server():
 
     def write_stats_to_csv(self):
         all_stats = self.get_all_stats()
-        with open('server_test.csv', 'w') as csv_file:
+        with open('server_test.csv', 'a') as csv_file:
             fieldnames = ['Date', 'hostname', 'used mem', 'free mem', 
             'logged in users', 'disk space', 'used space']
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-
-            writer.writeheader()
-            # FOR LOOP HERE FOR WRITER.WRITEROW()
-            writer.writerow({'Date': now.strftime('%Y-%m-%d %H:%M'), 
-                            'hostname': self.hostname, 
-                            'used mem': all_stats['used'],
-                            'free mem': all_stats['free'],
-                            'logged in users': all_stats['logged in users'],
-                            'disk space': all_stats['total_space'],
-                            'used space': all_stats['used_space']})
+            if os.path.getsize('server_test.csv') == 0:
+                writer.writeheader()
+                writer.writerow({'Date': now.strftime('%Y-%m-%d %H:%M'), 
+                                'hostname': self.hostname, 
+                                'used mem': all_stats['used'],
+                                'free mem': all_stats['free'],
+                                'logged in users': all_stats['logged in users'],
+                                'disk space': all_stats['total_space'],
+                                'used space': all_stats['used_space']})
+            else:
+                writer.writerow({'Date': now.strftime('%Y-%m-%d %H:%M'), 
+                                'hostname': self.hostname, 
+                                'used mem': all_stats['used'],
+                                'free mem': all_stats['free'],
+                                'logged in users': all_stats['logged in users'],
+                                'disk space': all_stats['total_space'],
+                                'used space': all_stats['used_space']})
+            self.ssh_obj.close()
+    
 
 now = datetime.datetime.now()
-s = Server('167.99.175.41', 'root', 'test123')
+hostname = input('What is the hostname/ip of the server you want to connect to?')
+
+s = Server('206.189.170.174', 'root', 'TestServerPassword1234')
 t = s.get_free_memory()
 logged_in_users = s.get_logged_in_users()
 # s._disk_space()
@@ -113,7 +127,8 @@ disk space,x,usedspace,x
 1. Write function get_all_stats (CHECK)
 2. Finish write to csv function (IN PROGRESS)
 3. Include try-except in the connect method() (CHECK, make it re-run the script and not exit)
-4. Think of CLI flow or use argparse?! (NEED TO DO)
+4. Think of CLI flow or use argparse?! (NEED TO DO/BULLET)
 5. Query it somehow?
+6. Figure out how to close the ssh connection
 '''
 
