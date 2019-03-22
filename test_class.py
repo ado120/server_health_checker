@@ -3,7 +3,8 @@ import sys
 import csv
 import datetime
 import os
-import bullet
+from getpass import getpass
+# import bullet
 
 class Server():
     def __init__(self, hostname, user, password):
@@ -108,15 +109,11 @@ class Server():
     
 
 now = datetime.datetime.now()
-hostname = input('What is the hostname/ip of the server you want to connect to?')
-
-s = Server('206.189.170.174', 'root', 'TestServerPassword1234')
-t = s.get_free_memory()
-logged_in_users = s.get_logged_in_users()
-# s._disk_space()
-# s.write_mem_to_csv()
-# print(s)
-# print(t)
+hostname = input('What is the hostname/ip of the server you want to connect to? ')
+username = input('What is the username? ')
+password = getpass('Enter your password: ')
+# s = Server('206.189.170.174', 'root', 'TestServerPassword1234')
+s = Server(hostname, username, password)
 print(s.get_all_stats())
 s.write_stats_to_csv()
 '''
@@ -125,8 +122,8 @@ logged in users,x
 disk space,x,usedspace,x
 
 1. Write function get_all_stats (CHECK)
-2. Finish write to csv function (IN PROGRESS)
-3. Include try-except in the connect method() (CHECK, make it re-run the script and not exit)
+2. Finish write to csv function (CHECK)
+3. Include try-except in the connect method() (CHECK)
 4. Think of CLI flow or use argparse?! (NEED TO DO/BULLET)
 5. Query it somehow?
 6. Figure out how to close the ssh connection
