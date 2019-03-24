@@ -84,7 +84,7 @@ class Server():
 
     def write_stats_to_csv(self):
         all_stats = self.get_all_stats()
-        with open('server_test.csv', 'a') as csv_file:
+        with open('server_test.csv', 'a', newline='') as csv_file:
             fieldnames = ['Date', 'hostname', 'used mem', 'free mem', 
             'logged in users', 'disk space', 'used space']
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
@@ -105,17 +105,20 @@ class Server():
                                 'logged in users': all_stats['logged in users'],
                                 'disk space': all_stats['total_space'],
                                 'used space': all_stats['used_space']})
-            self.ssh_obj.close()
+        self.ssh_obj.close()
     
 
 now = datetime.datetime.now()
+# s = Server('206.189.170.174', 'root', 'TestServerPassword1234')
 hostname = input('What is the hostname/ip of the server you want to connect to? ')
 username = input('What is the username? ')
 password = getpass('Enter your password: ')
-# s = Server('206.189.170.174', 'root', 'TestServerPassword1234')
 s = Server(hostname, username, password)
-print(s.get_all_stats())
+choice = input('Do you want to display all server stats to terminal (y/n)? ')
+if choice.lower() == 'y':
+    print(s.get_all_stats())
 s.write_stats_to_csv()
+print('Critical stats written to server_info.csv!')
 '''
 date/time,hostname,total mem,x,free mem,x,used mem,x
 logged in users,x
@@ -125,7 +128,8 @@ disk space,x,usedspace,x
 2. Finish write to csv function (CHECK)
 3. Include try-except in the connect method() (CHECK)
 4. Think of CLI flow or use argparse?! (NEED TO DO/BULLET)
-5. Query it somehow?
+5. Query it somehow? (VERSION2)
 6. Figure out how to close the ssh connection
+7. Why is appending after a line break (DONE)
 '''
 
