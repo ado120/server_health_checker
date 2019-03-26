@@ -11,7 +11,6 @@ class Server():
         self.hostname = hostname
         self.user = user
         self.password = password
-        self.ssh_obj = self.connect()
     
     def connect(self):
         ssh = paramiko.SSHClient()
@@ -28,11 +27,40 @@ class Server():
             print('Unable to ssh to the server, please try again')
             ssh.close()
             sys.exit(1)
-    
+
+
+
+    def execute_ssh_command(self, command: str):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        try:
+            ssh.connect(
+                hostname = self.hostname,
+                username = self.user,
+                password = self.password
+            )
+        except:
+            print('Unable to ssh to the server, please try again')
+            ssh.close()
+
+        _, stdout, stderr = ssh.exec_command(command)
+
+        stdout = stdout.readlines()
+        stderr = stderr.readlines()
+
+        ssh.close()
+
+        return stdout, stderr
+
+
     def get_free_memory(self):
-        stdin, stdout, stderr = self.ssh_obj.exec_command('free -h')
-        mem_stats = stdout.readlines()[1]
-        _, total, used, free, shared, cache, avail = mem_stats.split()
+        stdout, stderr = self.execute_ssh_command('free -h')
+        # get second element because first is headers, and then get 2nd element onwards (to ignore "Mem")
+        mem_stats = stdout[1].split()[1:]
+
+        total, used, free, shared, cache, avail = mem_stats
+
         memory_info = {
                 'total': total,
                 'used': used,
@@ -49,14 +77,14 @@ class Server():
         :param ssh_obj:
         :return:
         """
-        stdin, stdout, stderr = self.ssh_obj.exec_command('w')
-        logged_in = stdout.readlines()
+        stdout, stderr = self.execute_ssh_command('w')
+        logged_in = stdout
         num_users = len(logged_in) - 2
         return {'logged in users': num_users}
 
     def _disk_space(self):
-        stdin, stdout, stderr = self.ssh_obj.exec_command('df -h /')
-        root_space = stdout.readlines()
+        stdout, stderr = self.execute_ssh_command('df -h /')
+        root_space = stdout
         disk, total_space, used_space, avail_space, _, _ = root_space[1].split()
         disk_info = {
                 'disk_name' : disk,
@@ -105,20 +133,27 @@ class Server():
                                 'logged in users': all_stats['logged in users'],
                                 'disk space': all_stats['total_space'],
                                 'used space': all_stats['used_space']})
-        self.ssh_obj.close()
+
     
 
 now = datetime.datetime.now()
-# s = Server('206.189.170.174', 'root', 'TestServerPassword1234')
+s = Server('206.189.170.174', 'root', 'TestServerPassword1234')
+
+# print(s.get_free_memory())
+# print(s.get_logged_in_users())
+# print(s._disk_space())
+
 hostname = input('What is the hostname/ip of the server you want to connect to? ')
 username = input('What is the username? ')
 password = getpass('Enter your password: ')
-s = Server(hostname, username, password)
-choice = input('Do you want to display all server stats to terminal (y/n)? ')
-if choice.lower() == 'y':
-    print(s.get_all_stats())
-s.write_stats_to_csv()
-print('Critical stats written to server_info.csv!')
+# s = Server(hostname, username, password)
+
+
+# choice = input('Do you want to display all server stats to terminal (y/n)? ')
+# if choice.lower() == 'y':
+#     print(s.get_all_stats())
+# s.write_stats_to_csv()
+# print('Critical stats written to server_info.csv!')
 '''
 date/time,hostname,total mem,x,free mem,x,used mem,x
 logged in users,x
